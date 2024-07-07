@@ -6,6 +6,9 @@
 
 ### Recommendation API Architecture ###
 
+#### Async Step function to invoke video labeling and querying gemini AI ####
+![image](https://github.com/ernraff/tech-jam-2024/assets/103540977/aa41b2f7-badb-4b77-8089-1fef1822cb97)
+
 #### Video Labeling system design ####
 ![RecommendationLambdaRekognitionDesign](https://github.com/ernraff/tech-jam-2024/assets/103540977/0909dc36-950e-4093-9e15-2e5f5ab5e97d)
 
