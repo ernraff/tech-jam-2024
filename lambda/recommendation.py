@@ -201,7 +201,7 @@ class VideoDetect:
         self.sqs.delete_queue(QueueUrl=self.sqsQueueUrl)
         self.sns.delete_topic(TopicArn=self.snsTopicArn)
 
-
+### a lambda function that is used in a step function that generates label for the video file and return tiktok trending song titles 
 def lambda_handler(event, context):
     print("context:{}".format(context))
     print("event:{}".format(event))
