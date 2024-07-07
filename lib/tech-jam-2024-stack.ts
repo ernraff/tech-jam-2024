@@ -72,11 +72,20 @@ export class TechJam2024Stack extends cdk.Stack {
     const fileBucket = new s3.Bucket(this, "VideoBucket", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       serverAccessLogsBucket: accessLogsBucket,
       serverAccessLogsPrefix: "logs",
     });
+
+    fileBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ["s3:*"],
+        resources: [fileBucket.arnForObjects("*")],
+        principals: [new iam.AnyPrincipal()],
+      })
+    );
 
     const presignedUrlRole = new iam.Role(this, "PresignedUrlRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
@@ -85,7 +94,7 @@ export class TechJam2024Stack extends cdk.Stack {
           statements: [
             new iam.PolicyStatement({
               effect: iam.Effect.ALLOW,
-              actions: ["s3:GetObject"],
+              actions: ["*"],
               resources: [fileBucket.bucketArn + "/*"],
             }),
           ],
