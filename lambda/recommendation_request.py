@@ -36,16 +36,6 @@ def lambda_handler(event, context):
     except Exception as e:
         print(f"Error starting Step Function execution: {e}")
         
-    # Describe the Step Function execution to get its details
-    response = step_function_client.describe_execution(
-        executionArn="arn:aws:states:us-east-1:604242335225:execution:MyStateMachine-xnsut9h02:80995c77-7971-4184-ad4a-578962e00f08"
-    )
-
-    # Extract and print the execution status
-    execution_output = response["output"]
-    print(f"Execution ID '{execution_arn}' execution_output: {execution_output}")
- 
-
     return {
         'statusCode' : 200,
         'body' : json.dumps(execution_arn)
