@@ -3,6 +3,7 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 import * as path from "path";
 
@@ -51,7 +52,7 @@ export class TechJam2024Stack extends cdk.Stack {
     });
 
     // create lambda function
-    const lambdaFunction = new lambda.Function(this, "LambdaFunction", {
+    const getSoundsLambda = new lambda.Function(this, "LambdaFunction", {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: "lambda.lambda_handler", //define lambda handler function
       code: lambda.Code.fromAsset(
@@ -62,69 +63,85 @@ export class TechJam2024Stack extends cdk.Stack {
     });
 
     //create s3 bucket for video storage
-    const bucket = new s3.Bucket(this, "VideoBucket", {
+    const accessLogsBucket = new s3.Bucket(this, "AccessLogsBucket", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
 
-    //create an IAM role for apigateway to allow access to s3 bucket
-    const apiGatewayS3Role = new iam.Role(this, "ApiGatewayS3Role", {
-      assumedBy: new iam.ServicePrincipal("apigateway.amazonaws.com"),
+    const fileBucket = new s3.Bucket(this, "VideoBucket", {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      serverAccessLogsBucket: accessLogsBucket,
+      serverAccessLogsPrefix: "logs",
     });
 
-    bucket.grantPut(apiGatewayS3Role);
-
-    //GET method with Lambda proxy integration
-    const getIntegration = new apigateway.LambdaIntegration(lambdaFunction, {
-      proxy: true,
+    const presignedUrlRole = new iam.Role(this, "PresignedUrlRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      inlinePolicies: {
+        AllowS3BucketObjectAccess: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: ["s3:GetObject"],
+              resources: [fileBucket.bucketArn + "/*"],
+            }),
+          ],
+        }),
+      },
     });
 
-    api.root.addMethod("GET", getIntegration, {
-      apiKeyRequired: true,
+    const presignedUrlLambda = new lambda.Function(this, "PresignedUrlLambda", {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: "presignedurl.lambda_handler",
+      code: lambda.Code.fromAsset("lambda"),
+      environment: {
+        PRESIGN_URL_ROLE_ARN: presignedUrlRole.roleArn,
+        BUCKET_ARN: fileBucket.bucketArn,
+        BUCKET_NAME: fileBucket.bucketName,
+      },
     });
 
-    //PUT method with S3 integration
-    const putIntegration = new apigateway.AwsIntegration({
-      service: "s3",
-      integrationHttpMethod: "PUT",
-      path: "${bucket.bucketName}/{object}",
-      options: {
-        credentialsRole: apiGatewayS3Role,
-        requestParameters: {
-          "integration.request.path.object": "method.request.path.object",
-          "integration.request.header.Content-Type":
-            "method.request.header.Content-Type",
-        },
-        integrationResponses: [
-          {
-            statusCode: "200",
-            responseParameters: {
-              "method.response.header.Content-Type":
-                "integration.response.header.Content-Type",
-            },
-          },
+    presignedUrlRole.assumeRolePolicy?.addStatements(
+      new iam.PolicyStatement({
+        actions: ["sts:AssumeRole"],
+        effect: iam.Effect.ALLOW,
+        principals: [
+          iam.Role.fromRoleArn(
+            this,
+            "PresignedUrlRoleFromRoleArn",
+            presignedUrlLambda.role?.roleArn!
+          ),
         ],
-      },
+      })
+    );
+
+    new logs.LogGroup(this, "PresignedUrlLambdaLogGroup", {
+      logGroupName: "/aws/lambda/" + presignedUrlLambda.functionName,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const putMethodOptions: apigateway.MethodOptions = {
-      requestParameters: {
-        "method.request.path.object": true,
-        "method.request.header.Content-Type": true,
-      },
-      apiKeyRequired: true,
-      methodResponses: [
-        {
-          statusCode: "200",
-          responseParameters: {
-            "method.response.header.Content-Type": true,
-          },
-        },
-      ],
-    };
+    const techJamApiGw = api.root.addResource("TechJam");
 
-    api.root
-      .addResource("{object}")
-      .addMethod("PUT", putIntegration, putMethodOptions);
+    const presignedUrlApiGw = techJamApiGw.addResource("presignedUrl");
+    const presignedUrlIntegration = new apigateway.LambdaIntegration(
+      presignedUrlLambda
+    );
+    presignedUrlApiGw
+      .addResource("{fileName}")
+      .addMethod("GET", presignedUrlIntegration, { apiKeyRequired: true });
+
+    const recommendationApiGw = techJamApiGw.addResource("recommendation");
+    const recommendationIntegration = new apigateway.LambdaIntegration(
+      getSoundsLambda,
+      {
+        proxy: true,
+      }
+    );
+    recommendationApiGw
+      .addResource("{fileName}")
+      .addMethod("GET", recommendationIntegration, { apiKeyRequired: true });
   }
 }
