@@ -1,5 +1,9 @@
 # TikTok Tech Jam 2024 #
 
+## Duration ## 
+
+7/5/2024 - 7/7/2024 
+
 ## Team Members ##
 - Erin Rafferty
 - Sitanshu Kushwaha
