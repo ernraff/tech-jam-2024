@@ -1,9 +1,9 @@
 # TikTok Tech Jam 2024 #
 
 
-## Main Architecture ##
+## Architecture ##
 
-![newarch](https://github.com/ernraff/tech-jam-2024/assets/103540977/c7af5713-af24-4fcf-a4cb-c1013d85ca10)
+![image](https://github.com/ernraff/tech-jam-2024/assets/103540977/e08c8452-dd45-462b-b212-fbf3eb81b1b8)
 
 All the APIs that are created:
 - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/presignedUrl/{fileName}   // Get presigned URL to upload the file to S3 bucket  
