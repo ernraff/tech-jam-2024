@@ -27,7 +27,7 @@ All the APIs that are created:
     - If the job is still running, the UI waits.
        - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/status/{jobId} 
 
-## Asset ##
+## Assets ##
 - Backend 
   - AWS Services
     - S3, Lambda, Step Function, Rekognition, SQS, SNS, API Gateway, SageMaker(Jupyter Notebook), and CDK.
