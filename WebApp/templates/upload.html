@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload and Recommendation</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Video</h1>
+        <form id="uploadForm" action="{% url 'upload_video' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="video" id="video" accept="video/*" required>
+            <button type="submit">Upload Video</button>
+        </form>
+
+        {% if video_url %}
+        <div class="video-container">
+            <h1>Uploaded Video</h1>
+            <video controls>
+                <source src="media/{{ video_url }}">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+            <div id="loading" class="hidden">
+            <p>Loading recommendations...</p>
+        </div>
+        <div id="recommendations"></div>
+        <script>
+            function checkStatus() {
+                const jobId = "{{ Job_id }}";
+                fetch("{% url 'check_recommendation_status' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: new URLSearchParams({ 'job_id': jobId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'completed') {
+                        document.getElementById('loading').classList.add('hidden');
+                        let recommendations = data.recommendations;
+                        let recDiv = document.getElementById('recommendations');
+                        recDiv.innerHTML = '<h2>Recommendations:</h2><div>' + recommendations.replace(/\n/g, '<br>') + '</div>';
+                    } else if (data.status === 'RUNNING') {
+                        setTimeout(checkStatus, 30*1000); // Check again after 5 seconds
+                    } else {
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('recommendations').innerText = 'Error checking recommendation status.';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('recommendations').innerText = 'Error fetching recommendations.';
+                });
+            }
+
+            if ("{{ Job_id }}") {
+                checkStatus();  // Start checking status when the page loads
+            }
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>
