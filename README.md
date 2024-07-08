@@ -12,7 +12,7 @@ All the APIs that are created:
 
 ## User Flow ## 
 - The user who has apikey for the authentication uploads video to the website.
-  - This will invoke, the API that return presigned URL to upload file to s3 bucket.
+  - This will invoke the API that returns presigned URL to upload file to s3 bucket.
     - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/presignedUrl/{fileName}   // Get presigned URL to upload the file to S3 bucket  
   - Once the UI receives the presigned URL, it uploads the file directly.
   - Once the file is uploaded successfully to the server from UI, the UI invokes the async api that starts the recommendation job.
