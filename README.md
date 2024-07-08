@@ -1,5 +1,9 @@
 # TikTok Tech Jam 2024 #
 
+## Team Members ##
+- Erin Rafferty
+- Sitanshu 
+
 ## Problem Statement ##
 
 Relevant problem domain: Music Discovery
