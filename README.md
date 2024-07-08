@@ -16,14 +16,14 @@ All the APIs that are created:
 - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/status/{jobId} // Get the job output if the job is successful, Otherwise it returns the job status.
 
 ## User Flow ## 
-- User who has api key for the authentication uploads video to the website.
-  - This will invoke the API that returns presigned URL to upload file to s3 bucket.
-    - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/presignedUrl/{fileName}   // Get presigned URL to upload the file to S3 bucket  
-  - Once the UI receives the presigned URL, it uploads the file directly.
-  - Once the file is uploaded successfully to the server from UI, the UI invokes the async api that starts the recommendation job.
+- User uploads video to the website using API key for the authentication .
+  - This will invoke the API that returns a presigned URL that will allow the client to upload directly to the S3 bucket.
+    - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/presignedUrl/{fileName} 
+  - Once the client receives the presigned URL, it uploads the file directly.
+  - Once the file is uploaded successfully to the server, the UI invokes the async API that starts the recommendation job.
     - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/recommendation/{fileName}
-  - The UI periodically request to the API that checks status of the job.
-    - Once the job is successful, the API returns the trending tiktok song titles.
+  - The UI makes periodic requests to the API that checks status of the job.
+    - Once the job is successful, the API returns the trending TikTok song titles.
     - If the job is still running, the UI waits.
        - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/status/{jobId} 
 
@@ -34,11 +34,11 @@ All the APIs that are created:
 - Frontend
   - Django
   - Google Gemini SDK
-  - Tiktok Content posting API
- 
+  - Tiktok Content Posting API 
 
-### Recommendation API Architecture ###
-- In order to overcome API gateway timeout and to make a better user experience, we decided to do this in async. 
+## Setback ##
+- In order to overcome API gateway timeout and to make a better user experience, we decided to do this in async.
+- We were unable to register our app on the TikTok developer website in time for submission.  For demonstration purposes, our UI uses a dummy API in place of the Content Posting API.
 
 
 
