@@ -42,6 +42,7 @@ The APIs we created:
 
 ## Setback ##
 - In order to overcome API gateway timeout and to make a better user experience, we decided to do this in async.
+  - This prevents us from doing CI/CD work further.   
 - We were unable to register our app on the TikTok developer website in time for submission.  For demonstration purposes, our UI uses a dummy API in place of the Content Posting API.
 
 
