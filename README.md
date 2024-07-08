@@ -2,7 +2,7 @@
 
 ## Team Members ##
 - Erin Rafferty
-- Sitanshu 
+- Sitanshu Kushwaha
 
 ## Problem Statement ##
 
