@@ -14,7 +14,7 @@ When creating content to post to TikTok, users may not have a particular sound i
 
 ![image](https://github.com/ernraff/tech-jam-2024/assets/103540977/e08c8452-dd45-462b-b212-fbf3eb81b1b8)
 
-All the APIs that are created:
+The APIs we created:
 - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/presignedUrl/{fileName}   // Get presigned URL to upload the file to S3 bucket  
 - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/recommendation/{fileName} // Get Recommendation based on file(video here) 
 - https://lg1uksflod.execute-api.us-east-1.amazonaws.com/prod/TechJam/status/{jobId} // Get the job output if the job is successful, Otherwise it returns the job status.
